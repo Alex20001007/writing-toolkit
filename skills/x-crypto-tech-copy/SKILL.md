@@ -9,8 +9,8 @@ description: 每 30 分鐘為 X 產出 10 則繁體中文加密/AI/科技/宏觀
 素材來源 = 外部機器用 Apify 抓好、同步進來的 `tweets_*.json`。
 本任務只負責「讀檔 → 24h 過濾 → 分層 → 寫文案」。真實 views/likes/RT 用 JSON 內的數字（無則標 `~`）。
 
-# 🚫🚫 永久排除來源（全路徑 reject）
-abmedia.io（鏈新聞）· blockcast.it（區塊客）。JSON 內若混入這兩個域名的轉述，跳過。
+# 🚫🚫 排除來源（全路徑 reject）
+在這裡列出不想引用的網域：`{{EXCLUDED_DOMAINS}}`（例：`example-a.com`、`example-b.com`）。JSON 內若混入這些網域的轉述，跳過。
 
 # ⚠️ 鐵律：滾動 24 小時內
 ```bash
@@ -58,7 +58,7 @@ echo "使用素材：$LATEST"
 
 # Step 3 — 載入 + 24h 過濾 + 去黑名單
 讀 JSON，把每則的 `createdAt` 轉 epoch，只留 `≥ CUTOFF_EPOCH`。
-丟掉：`url` 不含 `/status/` 的、文字含 abmedia.io/blockcast.it 轉述的、純轉推無觀點的。
+丟掉：`url` 不含 `/status/` 的、文字含排除網域轉述的、純轉推無觀點的。
 依 `likes + retweets + views/100` 粗排出高流量候選。
 
 # Step 4 — 分層挑選（目標 1 / 2 / 6 / 1）
@@ -83,7 +83,7 @@ Hook（爭議/反差/數字+反差/提問）；繁中 + ticker 英文；≤ 280 
 > 本輪主題群：{標籤1} / {標籤2} / {標籤3}
 > 時效範圍：{CUTOFF 台北} ~ 現在（24h rolling）
 > 素材檔：tweets_xxxx.json（最新項 {N} 分鐘前）
-> 排除來源：abmedia.io、blockcast.it ✅
+> 排除來源：{{EXCLUDED_DOMAINS}} ✅
 
 ## 1️⃣ {動態標籤} 標題（帶觀點） 🟦
 > 文案本體（含 hashtag）
@@ -103,7 +103,7 @@ Hook（爭議/反差/數字+反差/提問）；繁中 + ticker 英文；≤ 280 
 # 自查表
 1. ✅ 10 對 10（或備註）
 2. ✅ 所有來源 createdAt ≥ CUTOFF（24h 內）
-3. ✅ 0 個含 abmedia.io / blockcast.it
+3. ✅ 0 個含排除網域
 4. ✅ 跨 ≥ 3 主題群
 5. ✅ 0 純報價
 6. ✅ 同 ticker ≤ 3
@@ -118,4 +118,4 @@ Hook（爭議/反差/數字+反差/提問）；繁中 + ticker 英文；≤ 280 
 - Layer D 無社群來源 → 1/2/7/0 備註。
 - 中文 KOL 不足 2 → 至少 1 + 備註。
 
-🚫 絕對禁止：超過 24h、主頁 URL 充當 status、abmedia.io/blockcast.it、用「事件還在發酵」放舊、為湊數放舊內容、回頭用 WebSearch。
+🚫 絕對禁止：超過 24h、主頁 URL 充當 status、引用排除網域、用「事件還在發酵」放舊、為湊數放舊內容、回頭用 WebSearch。
